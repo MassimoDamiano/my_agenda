@@ -11,7 +11,17 @@ class _ContactsState extends State<Contacts> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Contacts"), actions: []),
+      appBar: AppBar(
+        title: Text("Contacts"),
+        actions: [
+          IconButton(onPressed: (null), icon: Icon(Icons.search)),
+          PopupMenuButton(
+            itemBuilder: (context) => [
+              PopupMenuItem(value: "logout", child: Text("Logout")),
+            ],
+          ),
+        ],
+      ),
       body: Center(child: Text("data")),
     );
   }
