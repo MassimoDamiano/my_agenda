@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:my_agenda/Providers/provider.dart';
 import 'package:my_agenda/Screens/login.dart';
+import 'package:provider/provider.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() => runApp(
+  ChangeNotifierProvider(
+    create: (context) => ContactsProvider(),
+    child: MyApp(),
+  ),
+);
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

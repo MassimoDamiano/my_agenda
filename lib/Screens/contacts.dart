@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:my_agenda/Providers/provider.dart';
+import 'package:my_agenda/widgets/list_contacts.dart';
+import 'package:provider/provider.dart';
 
 class Contacts extends StatefulWidget {
   const Contacts({super.key});
@@ -13,6 +16,7 @@ class _ContactsState extends State<Contacts> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Contacts"),
+
         actions: [
           IconButton(onPressed: (null), icon: Icon(Icons.search)),
           PopupMenuButton(
@@ -22,7 +26,13 @@ class _ContactsState extends State<Contacts> {
           ),
         ],
       ),
-      body: Center(child: Text("data")),
+      body: ListContacts(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          context.read()<ContactsProvider>().addContact();
+        },
+        child: Icon(Icons.plus_one_outlined),
+      ),
     );
   }
 }

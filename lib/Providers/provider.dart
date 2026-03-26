@@ -1,37 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:my_agenda/Model/contact.dart';
-import 'package:my_agenda/Providers/provider.dart';
 import 'dart:collection';
 
-// This provider notiify the widgets who´s listening any change in the application
-
-class Provider extends ChangeNotifier {
+class ContactsProvider extends ChangeNotifier {
   List<Contact> _contacts = [];
-  UnmodifiableListView<Contact> get items =>
-      UnmodifiableListView<Contact>(_contacts);
+
+  UnmodifiableListView<Contact> get items => UnmodifiableListView(_contacts);
 
   Set<Contact> contactSelected = {};
 
-  List<Contact> contactsSelectedd = [];
+  int get cantContacts => _contacts.length;
 
-  Agenda() {
+  // ✅ Constructor correcto
+  ContactsProvider() {
     generateContacts();
   }
 
-  int get cantContacts => _contacts.length;
-
-  generateContacts() {
-    _contacts.add(Contact(id: 1, name: "Massimo", tel: 3512897267));
-    _contacts.add(Contact(id: 2, name: "Maximo", tel: 3512896667));
-    _contacts.add(Contact(id: 3, name: "Mateo", tel: 3515877267));
+  void generateContacts() {
+    _contacts.add(
+      Contact(id: 1, name: "Massimo", tel: 3512897267, cant: ValueNotifier(1)),
+    );
+    _contacts.add(
+      Contact(id: 2, name: "faximo", tel: 3512896667, cant: ValueNotifier(1)),
+    );
+    _contacts.add(
+      Contact(id: 3, name: "gateo", tel: 3515877267, cant: ValueNotifier(1)),
+    );
   }
 
   void addContact(Contact contact) {
-    contactSelected.add(contact);
+    _contacts.add(contact); // 🔥 antes estaba MAL
     notifyListeners();
   }
+
   void removeContact(Contact contact) {
-    contactSelected.remove(contact);
+    _contacts.remove(contact); // 🔥 antes estaba MAL
     notifyListeners();
   }
 }
