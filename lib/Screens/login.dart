@@ -1,5 +1,8 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:my_agenda/Providers/login_provider.dart';
 import 'package:my_agenda/Screens/contacts.dart';
+import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -9,8 +12,14 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
+    _nameController.text = "Massimo";
+    _passwordController.text = "123";
+
     return Scaffold(
       body: Container(
         child: Column(
@@ -50,15 +59,12 @@ class _LoginState extends State<Login> {
             ),
             SizedBox(height: 10),
 
-            Container(child: _textFieldName()),
+            Container(child: _textFieldPassw()),
             SizedBox(height: 80),
 
             ElevatedButton(
               onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => Contacts()),
-                );
+                login(context);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
@@ -83,11 +89,38 @@ class _LoginState extends State<Login> {
       margin: EdgeInsets.symmetric(horizontal: 40),
 
       child: TextField(
+        controller: _nameController,
         decoration: InputDecoration(
           prefixIcon: Icon(Icons.person),
           border: OutlineInputBorder(),
         ),
       ),
     );
+  }
+
+  Widget _textFieldPassw() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 40),
+
+      child: TextField(
+        controller: _passwordController,
+        decoration: InputDecoration(
+          prefixIcon: Icon(Icons.person),
+          border: OutlineInputBorder(),
+        ),
+      ),
+    );
+  }
+
+  void login(BuildContext context) {
+    final loginProvider = Provider.of<LoginProvider>(context, listen: false);
+    loginProvider
+        .login(_nameController.text, _passwordController.text)
+        .catchError((error) {
+          Flushbar(
+            message: "Error",
+            duration: Duration(seconds: 2),
+          ).show(context);
+        });
   }
 }

@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:my_agenda/Providers/login_provider.dart';
+import 'package:my_agenda/Providers/contacts_provider.dart';
 import 'package:my_agenda/Providers/provider.dart';
+import 'package:my_agenda/Screens/contacts.dart';
 import 'package:my_agenda/Screens/login.dart';
 import 'package:provider/provider.dart';
 
-void main() => runApp(
-  ChangeNotifierProvider(
-    create: (context) => ContactsProvider(),
-    child: MyApp(),
-  ),
-);
+void main() => runApp((const MyApp()));
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -16,13 +14,21 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => LoginProvider()),
+        ChangeNotifierProvider(create: (context) => ContactsProvider()),
+        ChangeNotifierProvider(create: (context) => CProvider()),
+      ],
+      child: MaterialApp(
+        title: "Contacts",
+        debugShowCheckedModeBanner: false,
+        home: Selector<LoginProvider, bool>(
+          selector: (_, p) => p.isLoggedIn,
+          builder: (_, isLoggedIn, __) =>
+              isLoggedIn ? const Contacts() : const Login(),
+        ),
       ),
-      debugShowCheckedModeBanner: false,
-      home: Login(),
     );
   }
 }
