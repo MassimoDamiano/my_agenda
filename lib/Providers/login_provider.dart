@@ -7,18 +7,22 @@ class LoginProvider extends ChangeNotifier {
   bool _isLoggedIn = false;
 
     LoginProvider() {
-    _loadSession();
+    _loadSession(); //Guarda los datos guardados
+
   } 
 
   // Getters
   String get name => _name;
   bool get isLoggedIn => _isLoggedIn;
 
+
+
   Future<void> login(String name, String password) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
     if (name == "Massimo" && password == "123") {
       _name = name;
       _isLoggedIn = true;
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString("name", _name);
       await prefs.setBool("isLoggedIn", _isLoggedIn);
       
@@ -33,7 +37,7 @@ class LoginProvider extends ChangeNotifier {
     _isLoggedIn = false;
 
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await prefs.clear(); //borra todo lo guardado
 
     notifyListeners();
   }
@@ -41,7 +45,7 @@ class LoginProvider extends ChangeNotifier {
   Future<void> _loadSession() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     _name = prefs.getString("name") ?? "";
-    _isLoggedIn = prefs.getBool("isLoggedin") ?? false;
+    _isLoggedIn = prefs.getBool("isLoggedIn") ?? false;
     notifyListeners();
   }
 }

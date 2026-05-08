@@ -18,18 +18,18 @@ class ContactsProvider extends ChangeNotifier {
 
   void generateContacts() {
     _contacts.add(
-      Contact(id: 1, name: "Massimo",Lastname: "Massimo",  tel: 3512897267, cant: ValueNotifier(1)),
+      Contact(id: 1, name: "Massimo",lastName: "Massimo",  tel: 3512897267, cant: ValueNotifier(1)),
     );
     _contacts.add(
-      Contact(id: 2, name: "faximo",Lastname: "Massimo",   tel: 3512896667, cant: ValueNotifier(1)),
+      Contact(id: 2, name: "faximo",lastName: "Massimo",   tel: 3512896667, cant: ValueNotifier(1)),
     );
     _contacts.add(
-      Contact(id: 3, name: "gateo",Lastname: "Massimo",  tel: 3515877267, cant: ValueNotifier(1)),
+      Contact(id: 3, name: "gateo",lastName: "Massimo",  tel: 3515877267, cant: ValueNotifier(1)),
     );
   }
 
   void addContact(Contact contact) {
-    _contacts.add(contact); // 🔥 antes estaba MAL
+    _contacts.add(contact);
     notifyListeners();
   }
 

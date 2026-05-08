@@ -7,14 +7,14 @@ import 'package:my_agenda/Model/contact.dart';
 
 class ContactsDBHelper {
   //  -- Singleton -- we create a internal constructor and made one instance of the database
-  ContactsDBHelper.internal();
-  static final ContactsDBHelper instance = ContactsDBHelper.internal();
+  ContactsDBHelper._internal();
+  static final ContactsDBHelper instance = ContactsDBHelper._internal();
 
   //  --- Config ---
 
   static Database? _database;
   static const _dbName = 'contacts.db';
-  static const _dbVersion = 2;
+  static const _dbVersion = 1;
   static const _tableName = 'contacts';
 
   Database? _db;
@@ -23,41 +23,58 @@ class ContactsDBHelper {
         void
       >(); // This allow us to have a controll of one specific activity
 
-  static Future<Database> get database async {
+  Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await initDB();
-    return _database!;
+
+    if (!_initLock.isCompleted) {
+      unawaited(_initDB());
+      await _initLock.future;
+      return _database!;
+    } else {
+      await _initDB();
+      return _database!;
+    }
   }
 
-  static Future<Database> initDB() async {
-    String path = join(await getDatabasesPath(), _dbName);
+  Future<void> _initDB() async {
+    try {
+      String path = join(await getDatabasesPath(), _dbName);
+      _database = await openDatabase(
+        path,
+        version: _dbVersion,
+        onCreate: (db, version) async {
+          await _createSchema(db);
+        },
+        onUpgrade: (db, oldVersion, newVersion) async {},
+      );
+    } finally {
+      if (!_initLock.isCompleted) _initLock.complete();
+    }
+  }
 
-    print("pathDB: " + path);
-
-    return await openDatabase(
-      path,
-      version: _dbVersion,
-      onCreate: (db, version) async {
-        await db.execute('''
-          CREATE TABLE $_tableName(
-            idContact INTEGER PRIMARY KEY AUTOINCREMENT,
-            id INTEGER ,
-            name TEXT,
-            Lastname TEXT,
-            tel INTEGER,
+  Future<void> _createSchema(Database db) async {
+    await db.execute(''' 
+    CREATE TABLE $_tableName(
+            id INTEGER PRIMARY KEY AUTOINCREMENT ,
+            name      TEXT       NOT NULL,
+            lastName  TEXT       NOT NULL,
+            tel       INTEGER    NOT NULL,
+            cant      INTEGER    NOT NULL  DEFAULT 0 CHECK(cant >= 0)
           )
-        ''');
-      },
-      onUpgrade: (Database db, int oldVersion, int version) async {
-        // Código para realizar las modificaciones en la base de datos
-      },
+    ''');
+
+    //Busquedas mas rapidas por nombre
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_contactos_nombre ON $_tableName(nombre);',
     );
   }
 
-  // _____CRUD________
+
+
+  // _____CRUD________   28:16
 
   static Future<int> insertContact(Contact contact) async {
-    final db = await database;
+    final db = await _database;
     return await db.insert(
       _tableName,
       contact.toMap(),
@@ -65,14 +82,14 @@ class ContactsDBHelper {
     );
   }
 
-/* getContact({String? search , String orderBy = "nombre ASC"}){
+  /* getContact({String? search , String orderBy = "nombre ASC"}){
   final db = await database;
   final where = (search == null || search.trim().isEmpty) ? null : "nombre LIKE ?";
   final whereArgs = (where == null) ? null : ["%${search!.trim()}%"];
   final rows = await db.query(_tableName, where:where,whereArgs: whereArgs,orderBy: orderBy);
 */
   static Future<List<Contact>> getContacts() async {
-    final db = await database; 
+    final db = await database;
 
     List<Map<String, dynamic>> maps = await db.query(_tableName);
 
@@ -80,7 +97,7 @@ class ContactsDBHelper {
       return Contact(
         id: maps[i]['idContact'],
         name: maps[i]['Name'],
-        Lastname: maps[i]['Last Name'],
+        lastName: maps[i]['Last Name'],
         cant: ValueNotifier<int>(maps[i]['cantidad']),
         tel: maps[i]["Telefone"],
       );
@@ -96,9 +113,6 @@ class ContactsDBHelper {
       whereArgs: [contact.id],
     );
   }
-  
-
-
 
   static Future<int> deleteContact(int id) async {
     final db = await database;
@@ -118,7 +132,7 @@ class ContactsDBHelper {
     return Contact(
       id: m["id"] as int,
       name: m["name"] as String,
-      Lastname: m["Lastname"] as String,
+      lastName: m["lastName"] as String,
       tel: m["tel"] as int,
       cant: ValueNotifier<int>(m["cant"] as int),
     );

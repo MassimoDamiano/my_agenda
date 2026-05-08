@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_agenda/Providers/contacts_provider.dart';
 import 'package:my_agenda/Providers/provider.dart';
+import 'package:my_agenda/widgets/addContactForm.dart';
 import 'package:provider/provider.dart';
 
 class Addcontact extends StatefulWidget {
@@ -34,7 +35,7 @@ class _AddcontactState extends State<Addcontact> {
         floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.add),
           onPressed: () {
-            showDialog(context: context, builder: (context) => const AgregarProductoForm());
+            showDialog(context: context, builder: (context) => const Addcontactform());
           },
         ));
 

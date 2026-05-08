@@ -24,7 +24,12 @@ class MyApp extends StatelessWidget {
         title: "Contacts",
         debugShowCheckedModeBanner: false,
         home: Selector<LoginProvider, bool>(
-          selector: (_, p) => p.isLoggedIn,
+          
+          //Utilizamos selector porque buscamos que al recibir un cambio en el login provider
+          // solamente llegue al build  cuando sufra un cambio isLoggedIn
+
+          selector: (_, p) => p.isLoggedIn, // verifica si tengo una sesion activa
+          
           builder: (_, isLoggedIn, __) =>
               isLoggedIn ? const Contacts() : const Login(),
         ),
