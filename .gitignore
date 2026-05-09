@@ -46,3 +46,5 @@ app.*.map.json
 /windows/flutter/ephemeral/
 build/
 .dart_tool/
+windows/flutter/ephemeral/
+*.pdb
