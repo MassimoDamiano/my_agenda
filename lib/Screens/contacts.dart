@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_agenda/Providers/provider.dart';
+import 'package:my_agenda/widgets/addContactForm.dart';
 import 'package:my_agenda/widgets/list_contacts.dart';
 import 'package:provider/provider.dart';
 
@@ -29,7 +30,10 @@ class _ContactsState extends State<Contacts> {
       body: ListContacts(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          context.read()<ContactsProvider>().addContact();
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const Addcontactform()),
+          );
         },
         child: Icon(Icons.plus_one_outlined),
       ),

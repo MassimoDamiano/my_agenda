@@ -15,6 +15,14 @@ class _AddcontactformState extends State<Addcontactform> {
   final _lastNameController = TextEditingController();
   final _telController = TextEditingController();
 
+  Contact get _contact => Contact(
+    id: 0,
+    name: _nameController.text,
+    lastName: _lastNameController.text,
+    tel: int.tryParse(_telController.text) ?? 0,
+    cant: ValueNotifier<int>(1),
+  );
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -23,11 +31,10 @@ class _AddcontactformState extends State<Addcontactform> {
     super.dispose();
   }
 
-  Contact get _contact => Contact(id: id, name: name, Lastname: Lastname, tel: tel, cant: cant);
-
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ContactsProvider>();
+
     return AlertDialog(
       title: const Text("Add Contact"),
       content: Column(
@@ -53,9 +60,10 @@ class _AddcontactformState extends State<Addcontactform> {
           child: const Text("Cancel"),
         ),
         TextButton(
-          onPressed: () => {
-            provider.addContact(_contact),
-            Navigator.of(context).pop()},
+          onPressed: () {
+            provider.addContact(_contact);
+            Navigator.of(context).pop();
+          },
           child: const Text("Add"),
         ),
       ],

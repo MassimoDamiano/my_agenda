@@ -11,42 +11,59 @@ class CProvider extends ChangeNotifier {
   bool _isLoading = false;
 
   UnmodifiableListView<Contact> get contacts => UnmodifiableListView(_contacts);
+
   bool get isLoading => _isLoading;
 
-//Minuto 37 clase 4
-
-
-  /* void cargarContacts() async {
+  void cargarContacts({String? search}) async {
     _isLoading = true;
-    try{
+
+    try {
       final list = await _db.getContacts(search: search);
-      _contacts..clear()..addAll(list);
+      _contacts
+        ..clear()
+        ..addAll(list);
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-    _contacts = await ContactsDBHelper.getContacts();
-    notifyListeners();
-  } */
-
- void cargarContacts() async {
-    _contacts = await ContactsDBHelper.getContacts();
-    notifyListeners();
   }
 
+  Future<Contact?> agregarContact(Contact contact) async {
+    final rowId = await _db.insertContact(contact);
 
-  void agregarContact(Contact contact) async {
-    await ContactsDBHelper.insertContact(contact);
-    _contacts.add(contact);
-    notifyListeners();
+    final creado = await _db.getContactById(rowId);
+
+    if (creado != null) {
+      _contacts.add(creado);
+      notifyListeners();
+    }
+
+    return creado;
   }
 
-  void actualizarContact(Contact contact) async {
-    await ContactsDBHelper.updateContact(contact);
-    _contacts[_contacts.indexWhere((p) => p.id == contact.id)] = contact;
-    notifyListeners();
+  Future<bool> actualizarContact(Contact contact) async {
+    final affected = await _db.updateContact(contact);
+
+    if (affected > 0) {
+      final i = _contacts.indexWhere((p) => p.id == contact.id);
+      if (i != -1) {
+        _contacts[i] = contact;
+        notifyListeners();
+      } else {
+        //
+      }
+      return true;
+    }
+    return false;
+
+    
   }
 
   void eliminarContact(int id) async {
-    await ContactsDBHelper.deleteContact(id);
+    await _db.deleteContact(id);
+
     _contacts.removeWhere((p) => p.id == id);
+
     notifyListeners();
   }
 }

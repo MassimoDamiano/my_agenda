@@ -65,58 +65,70 @@ class ContactsDBHelper {
 
     //Busquedas mas rapidas por nombre
     await db.execute(
-      'CREATE INDEX IF NOT EXISTS idx_contactos_nombre ON $_tableName(nombre);',
+      'CREATE INDEX IF NOT EXISTS idx_contactos_nombre ON $_tableName(name);',
     );
   }
-
-
 
   // _____CRUD________   28:16
 
-  static Future<int> insertContact(Contact contact) async {
-    final db = await _database;
+  Future<int> insertContact(Contact contact) async {
+    final db = await database;
     return await db.insert(
       _tableName,
       contact.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.abort,
+      conflictAlgorithm: ConflictAlgorithm
+          .abort, // esto es por si repetimos el mismo producto al insertar
     );
   }
 
-  /* getContact({String? search , String orderBy = "nombre ASC"}){
-  final db = await database;
-  final where = (search == null || search.trim().isEmpty) ? null : "nombre LIKE ?";
-  final whereArgs = (where == null) ? null : ["%${search!.trim()}%"];
-  final rows = await db.query(_tableName, where:where,whereArgs: whereArgs,orderBy: orderBy);
-*/
-  static Future<List<Contact>> getContacts() async {
+  
+  Future<List<Contact>> getContacts({
+    String? search,
+    String orderBy = 'name ASC',
+  }) async {
     final db = await database;
 
-    List<Map<String, dynamic>> maps = await db.query(_tableName);
+    final where = (search == null || search.trim().isEmpty)
+        ? null
+        : "name LIKE ?";
 
-    return List.generate(maps.length, (i) {
-      return Contact(
-        id: maps[i]['idContact'],
-        name: maps[i]['Name'],
-        lastName: maps[i]['Last Name'],
-        cant: ValueNotifier<int>(maps[i]['cantidad']),
-        tel: maps[i]["Telefone"],
-      );
-    });
+    final whereArgs = (where == null) ? null : ["%${search!.trim()}%"];
+
+    final rows = await db.query(
+      _tableName,
+      where: where,
+      whereArgs: whereArgs,
+      orderBy: orderBy,
+    );
+
+    return rows.map(
+      (m) {
+        return Contact(
+          id: m['id'] as int,
+          name: m['name'] as String,
+          lastName: m['lastName'] as String,
+          tel: m['tel'] as int,
+          cant: ValueNotifier<int>(m['cant'] as int),
+        );
+      },
+    ).toList(growable: false);
+
+   
   }
 
-  static Future<int> updateContact(Contact contact) async {
+  Future<int> updateContact(Contact contact) async {
     final db = await database;
     return await db.update(
       _tableName,
       contact.toMap(),
-      where: 'idContact = ?',
+      where: 'id = ?',
       whereArgs: [contact.id],
     );
   }
 
-  static Future<int> deleteContact(int id) async {
+  Future<int> deleteContact(int id) async {
     final db = await database;
-    return await db.delete(_tableName, where: 'idContact = ?', whereArgs: [id]);
+    return await db.delete(_tableName, where: 'id = ?', whereArgs: [id]);
   }
 
   Future<Contact?> getContactById(int id) async {
