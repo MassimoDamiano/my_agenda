@@ -7,7 +7,7 @@ import 'package:my_agenda/Model/contact.dart';
 class CProvider extends ChangeNotifier {
   final _db = ContactsDBHelper.instance;
 
-  List<Contact> _contacts = [];
+  final List<Contact> _contacts = [];
   bool _isLoading = false;
 
   UnmodifiableListView<Contact> get contacts => UnmodifiableListView(_contacts);
@@ -55,8 +55,6 @@ class CProvider extends ChangeNotifier {
       return true;
     }
     return false;
-
-    
   }
 
   void eliminarContact(int id) async {

@@ -1,7 +1,6 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:my_agenda/Providers/login_provider.dart';
-import 'package:my_agenda/Screens/contacts.dart';
 import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
@@ -17,9 +16,6 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    _nameController.text = "Massimo";
-    _passwordController.text = "123";
-
     return Scaffold(
       body: Container(
         child: Column(
@@ -78,6 +74,26 @@ class _LoginState extends State<Login> {
                 style: TextStyle(fontSize: 16, color: Colors.white),
               ),
             ),
+            SizedBox(height: 10),
+
+            ElevatedButton(
+              onPressed: () {
+                register(context);
+              },
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Text(
+                "Registrarse",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: const Color.fromARGB(255, 3, 3, 3),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -112,15 +128,34 @@ class _LoginState extends State<Login> {
     );
   }
 
-  void login(BuildContext context) {
+  Future<void> login(BuildContext context) async {
     final loginProvider = Provider.of<LoginProvider>(context, listen: false);
-    loginProvider
-        .login(_nameController.text, _passwordController.text)
-        .catchError((error) {
-          Flushbar(
-            message: "Error",
-            duration: Duration(seconds: 2),
-          ).show(context);
-        });
+
+    try {
+      await loginProvider.login(_nameController.text, _passwordController.text);
+    } catch (error) {
+      if (!context.mounted) return;
+
+      Flushbar(message: "Error", duration: Duration(seconds: 2)).show(context);
+    }
+  }
+
+  Future<void> register(BuildContext context) async {
+    final loginProvider = Provider.of<LoginProvider>(context, listen: false);
+
+    try {
+      await loginProvider.register(
+        _nameController.text,
+        _passwordController.text,
+      );
+      Flushbar(
+        message: "Usuario registrado con exito",
+        duration: Duration(seconds: 2),
+      ).show(context);
+    } catch (error) {
+      if (!context.mounted) return;
+
+      Flushbar(message: "Error", duration: Duration(seconds: 2)).show(context);
+    }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_agenda/Providers/login_provider.dart';
 import 'package:my_agenda/Providers/provider.dart';
 import 'package:my_agenda/widgets/addContactForm.dart';
 import 'package:my_agenda/widgets/list_contacts.dart';
@@ -13,6 +14,14 @@ class Contacts extends StatefulWidget {
 
 class _ContactsState extends State<Contacts> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ContactsProvider>().cargarContacts();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -20,9 +29,20 @@ class _ContactsState extends State<Contacts> {
 
         actions: [
           IconButton(onPressed: (null), icon: Icon(Icons.search)),
-          PopupMenuButton(
+          PopupMenuButton<String>(
+            onSelected: (value) async {
+              if (value == "logout") {
+                await context.read<LoginProvider>().logout();
+
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/login',
+                  (route) => false,
+                );
+              }
+            },
             itemBuilder: (context) => [
-              PopupMenuItem(value: "logout", child: Text("Logout")),
+              const PopupMenuItem(value: "logout", child: Text("Logout")),
             ],
           ),
         ],
@@ -30,9 +50,9 @@ class _ContactsState extends State<Contacts> {
       body: ListContacts(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const Addcontactform()),
+          showDialog(
+            context: context,
+            builder: (context) => const Addcontactform(),
           );
         },
         child: Icon(Icons.plus_one_outlined),

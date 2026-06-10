@@ -1,40 +1,53 @@
-import 'package:flutter/material.dart';
-import 'package:my_agenda/Model/contact.dart';
 import 'dart:collection';
 
+import 'package:flutter/material.dart';
+import 'package:my_agenda/Model/contact.dart';
+import 'package:my_agenda/Model/db/contactos_api.dart';
+
 class ContactsProvider extends ChangeNotifier {
+  final ContactosApi _api = ContactosApi();
   List<Contact> _contacts = [];
+  bool _isLoading = false;
 
   UnmodifiableListView<Contact> get items => UnmodifiableListView(_contacts);
+  bool get isLoading => _isLoading;
 
   Set<Contact> contactSelected = {};
 
   int get cantContacts => _contacts.length;
 
-  // ✅ Constructor correcto
-  ContactsProvider() {
-    generateContacts();
+  Future<void> cargarContacts() async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      _contacts = await _api.obtenerTodos();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
-  void generateContacts() {
-    _contacts.add(
-      Contact(id: 1, name: "Massimo",lastName: "Massimo",  tel: 3512897267, cant: ValueNotifier(1)),
-    );
-    _contacts.add(
-      Contact(id: 2, name: "faximo",lastName: "Massimo",   tel: 3512896667, cant: ValueNotifier(1)),
-    );
-    _contacts.add(
-      Contact(id: 3, name: "gateo",lastName: "Massimo",  tel: 3515877267, cant: ValueNotifier(1)),
-    );
-  }
-
-  void addContact(Contact contact) {
-    _contacts.add(contact);
+  Future<void> addContact(Contact contact) async {
+    final creado = await _api.agregar(contact);
+    _contacts.add(creado);
     notifyListeners();
   }
 
-  void removeContact(Contact contact) {
-    _contacts.remove(contact); // 🔥 antes estaba MAL
+  Future<void> updateContact(Contact contact) async {
+    final editado = await _api.editar(contact);
+    final index = _contacts.indexWhere((c) => c.id == editado.id);
+
+    if (index != -1) {
+      _contacts[index] = editado;
+      notifyListeners();
+    }
+  }
+
+  Future<void> removeContact(Contact contact) async {
+    await _api.eliminar(contact.id);
+
+    _contacts.removeWhere((c) => c.id == contact.id);
     notifyListeners();
   }
 }

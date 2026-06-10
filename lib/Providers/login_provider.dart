@@ -1,43 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:my_agenda/Model/db/auth_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginProvider extends ChangeNotifier {
+  final AuthApi _authApi = AuthApi();
   String _name = "";
-
   bool _isLoggedIn = false;
 
-    LoginProvider() {
-    _loadSession(); //Guarda los datos guardados
+  LoginProvider() {
+    _loadSession();
+  }
 
-  } 
-
-  // Getters
   String get name => _name;
   bool get isLoggedIn => _isLoggedIn;
 
-
-
   Future<void> login(String name, String password) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await _authApi.login(name, password);
 
-    if (name == "Massimo" && password == "123") {
-      _name = name;
-      _isLoggedIn = true;
-      await prefs.setString("name", _name);
-      await prefs.setBool("isLoggedIn", _isLoggedIn);
-      
-      notifyListeners();
-    } else {
-      throw Exception("Error,, Try Again");
-    }
+    _name = name;
+    _isLoggedIn = true;
+
+    notifyListeners();
+  }
+
+  Future<void> register(String email, String password) async {
+    await _authApi.register(email, password);
   }
 
   Future<void> logout() async {
     _name = "";
     _isLoggedIn = false;
 
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.clear(); //borra todo lo guardado
+    await _authApi.logout();
 
     notifyListeners();
   }

@@ -17,7 +17,6 @@ class ContactsDBHelper {
   static const _dbVersion = 1;
   static const _tableName = 'contacts';
 
-  Database? _db;
   final _initLock =
       Completer<
         void
@@ -81,7 +80,6 @@ class ContactsDBHelper {
     );
   }
 
-  
   Future<List<Contact>> getContacts({
     String? search,
     String orderBy = 'name ASC',
@@ -101,19 +99,17 @@ class ContactsDBHelper {
       orderBy: orderBy,
     );
 
-    return rows.map(
-      (m) {
-        return Contact(
-          id: m['id'] as int,
-          name: m['name'] as String,
-          lastName: m['lastName'] as String,
-          tel: m['tel'] as int,
-          cant: ValueNotifier<int>(m['cant'] as int),
-        );
-      },
-    ).toList(growable: false);
-
-   
+    return rows
+        .map((m) {
+          return Contact(
+            id: m['id'] as int,
+            name: m['name'] as String,
+            lastName: m['lastName'] as String,
+            tel: m['tel'] as int,
+            cant: ValueNotifier<int>(m['cant'] as int),
+          );
+        })
+        .toList(growable: false);
   }
 
   Future<int> updateContact(Contact contact) async {

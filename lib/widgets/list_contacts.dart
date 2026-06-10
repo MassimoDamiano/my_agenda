@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:my_agenda/Providers/provider.dart';
 import 'package:my_agenda/Model/contact.dart';
+import 'package:my_agenda/Providers/provider.dart';
+import 'package:my_agenda/widgets/addContactForm.dart';
+import 'package:provider/provider.dart';
 
 class ListContacts extends StatelessWidget {
   const ListContacts({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // 🔥 Escucha el provider completo
     final provider = context.watch<ContactsProvider>();
+
+    if (provider.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -37,13 +41,36 @@ class ListContacts extends StatelessWidget {
                           leading: CircleAvatar(
                             child: Text(contact.name[0].toUpperCase()),
                           ),
-                          title: Text(contact.name),
-                          subtitle: Text("Tel: ${contact.tel}"),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () {
-                              provider.removeContact(contact);
-                            },
+                          title: Text("${contact.name} ${contact.lastName}"),
+                          subtitle: Text(
+                            "Tel: ${contact.tel}"
+                            "\nDomicilio: ${contact.address}"
+                            "\nFecha nacimiento: ${contact.birthDate?.toIso8601String().split('T').first ?? ''}"
+                            "\nGenero: ${contact.gender}",
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) =>
+                                        Addcontactform(contact: contact),
+                                  );
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
+                                onPressed: () async {
+                                  await provider.removeContact(contact);
+                                },
+                              ),
+                            ],
                           ),
                         ),
                       );
